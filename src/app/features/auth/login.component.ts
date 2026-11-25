@@ -11,7 +11,7 @@ import { AuthStore } from '../../core/auth.store';
     <main class="login-page">
       <section class="login-panel" aria-labelledby="login-title">
         <a class="login-brand" href="/login" aria-label="SmartStudyAI, ir al inicio">
-          <span class="login-brand__mark" aria-hidden="true"><i class="uil uil-brain"></i></span>
+          <span class="login-brand__mark" aria-hidden="true"><img src="/assets/images/LogoSmart.png" alt="" /></span>
           <span>SmartStudy<span>AI</span></span>
         </a>
 
@@ -42,12 +42,11 @@ import { AuthStore } from '../../core/auth.store';
             </div>
             @if (passwordInvalid()) { <span class="field-error">La contraseña es requerida.</span> }
 
-            <div class="form-options"><label class="check-label"><input type="checkbox" formControlName="remember" /> <span>Recordarme en este dispositivo</span></label></div>
-            <button class="primary-button full login-submit" type="submit">Iniciar sesión <i class="uil uil-arrow-right" aria-hidden="true"></i></button>
+            <button class="primary-button full login-submit" type="submit">Iniciar sesión</button>
           </form>
 
           <div class="divider"><span>o</span></div>
-          <a class="secondary-link login-signup" href="/login">Crear una cuenta gratuita <i class="uil uil-arrow-right" aria-hidden="true"></i></a>
+          <a class="secondary-link login-signup" href="/login">Crear una cuenta gratuita</a>
           <p class="demo-hint">Demo local: utiliza cualquier email válido y una contraseña de 8 caracteres.</p>
         </div>
       </section>
@@ -68,8 +67,7 @@ export class LoginComponent {
   readonly errorMessage = signal('');
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]],
-    remember: [true]
+    password: ['', [Validators.required, Validators.minLength(8)]]
   });
 
   emailInvalid(): boolean { const control = this.form.controls.email; return control.invalid && (control.touched || this.submitted()); }

@@ -4,3 +4,7 @@ dist/
 coverage/
 out-tsc/
 .DS_Store
+backend-smartstudy/.env
+backend-smartstudy/storage/
+backend-smartstudy/prisma/*.db
+backend-smartstudy/prisma/*.db-journal

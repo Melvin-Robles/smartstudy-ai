@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum DocumentStatus {
+  UPLOADED
+  PROCESSING
+  READY
+  FAILED
+}
+
+enum ArtifactType {
+  SUMMARY
+  FLASHCARDS
+}
+
+model User {
+  id           String          @id @default(cuid())
+  email        String          @unique
+  passwordHash String
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  documents    Document[]
+  sessions     StudySession[]
+}
+
+model Document {
+  id            String         @id @default(cuid())
+  ownerId       String
+  owner         User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  originalName  String
+  storageKey    String         @unique
+  mimeType      String
+  sizeBytes     Int
+  status        DocumentStatus @default(UPLOADED)
+  extractedText String?
+  failureReason String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  artifacts     GeneratedArtifact[]
+  sessions      StudySession[]
+
+  @@index([ownerId, createdAt])
+}
+
+model GeneratedArtifact {
+  id            String       @id @default(cuid())
+  documentId    String
+  document      Document     @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  type          ArtifactType
+  payload       String
+  sourceRefs    String
+  model         String
+  promptVersion String
+  createdAt     DateTime     @default(now())
+  sessions      StudySession[]
+
+  @@index([documentId, type, createdAt])
+}
+
+model StudySession {
+  id         String            @id @default(cuid())
+  userId     String
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documentId String
+  document   Document          @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  artifactId String
+  artifact   GeneratedArtifact @relation(fields: [artifactId], references: [id], onDelete: Cascade)
+  createdAt  DateTime          @default(now())
+  attempts   StudyAttempt[]
+
+  @@index([userId, createdAt])
+}
+
+model StudyAttempt {
+  id         String       @id @default(cuid())
+  sessionId  String
+  session    StudySession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  cardIndex  Int
+  correct    Boolean
+  createdAt  DateTime     @default(now())
+
+  @@index([sessionId, createdAt])
+}

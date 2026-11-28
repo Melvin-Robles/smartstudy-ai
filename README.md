@@ -1,34 +1,50 @@
 # SmartStudyAI
 
-MVP frontend de SmartStudyAI, construido con Angular 22, standalone components, Angular Router, Signals, Reactive Forms y SCSS.
+Monorepo de SmartStudyAI con instalaciones independientes.
 
-## Alcance implementado
+## Estructura
 
-- Inicio de sesión demo con validación de email y contraseña.
-- Guard de navegación para proteger el espacio autenticado.
-- Dashboard con métricas y actividad reciente.
-- Biblioteca personal con carga de PDF, DOCX y TXT.
-- Estados de documento `UPLOADED`, `PROCESSING`, `READY` y `FAILED`.
-- Reintento y eliminación de documentos con artefactos derivados.
-- Detalle de documento con resumen, ideas principales y trazabilidad.
-- Práctica básica de flashcards y registro local de avance.
+- `frontend-smartstudy/`: aplicación Angular 22 y sus dependencias en `frontend-smartstudy/node_modules/`.
+- `backend-smartstudy/`: API NestJS y sus dependencias en `backend-smartstudy/node_modules/`.
+- `docs/`: documentación del proyecto.
 
-La aplicación usa `StudyStore` como adaptador local temporal. No se implementó backend ni persistencia remota porque la decisión NestJS/FastAPI sigue pendiente de aprobación.
+## Instalación
+
+Instala cada aplicación desde su propia carpeta:
+
+```bash
+cd frontend-smartstudy
+npm install
+```
+
+```bash
+cd ../backend-smartstudy
+npm install
+```
 
 ## Ejecución
 
+Frontend:
+
 ```bash
-npm install
+cd frontend-smartstudy
 npm start
 ```
 
-Abre `http://localhost:4200/login`. Para la demo se acepta cualquier email válido y una contraseña de al menos ocho caracteres.
-
-## Verificaciones
+Backend:
 
 ```bash
-npm run build
-npm test
+cd backend-smartstudy
+npm run prisma:generate
+npm run prisma:push
+npm run start:dev
 ```
 
-El proyecto requiere Node compatible con la versión de Angular 22 instalada.
+También puedes usar los scripts de la raíz, que delegan a cada carpeta sin instalar dependencias en la raíz:
+
+```bash
+npm run start:frontend
+npm run dev:backend
+```
+
+El frontend usa `http://localhost:4200`, el backend `http://localhost:3000/api/v1` y Swagger `http://localhost:3000/docs`.

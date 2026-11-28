@@ -1,0 +1,41 @@
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { AuthStore } from '../../core/auth.store';
+import { StudyStore } from '../../core/study.store';
+
+@Component({
+  selector: 'app-dashboard',
+  standalone: true,
+  imports: [RouterLink],
+  template: `
+    <div class="dashboard-page">
+      <div class="page-heading"><div><h1>Hola, {{ displayName() }}</h1><p>Continúa tu estudio, organiza tus materiales y avanza en tus objetivos.</p></div><div class="heading-visual"><img class="dashboard-hero" src="/assets/images/Workspace.png" alt="Laptop con una ruta de estudio y libros" /></div></div>
+
+      <section class="stats-grid" aria-label="Resumen de aprendizaje">
+        <article class="stat-card"><span class="stat-icon indigo"><i class="uil uil-file-alt"></i></span><div><span>Documentos</span><strong>{{ documents().length }}</strong><small>en tu biblioteca</small></div></article>
+        <article class="stat-card"><span class="stat-icon teal-bg"><i class="uil uil-book-open"></i></span><div><span>Flashcards</span><strong>{{ flashcards().length }}</strong><small>listas para practicar</small></div></article>
+        <article class="stat-card"><span class="stat-icon green"><i class="uil uil-chart-line"></i></span><div><span>Progreso semanal</span><strong>68%</strong><small class="positive"><i class="uil uil-arrow-up"></i> 12% esta semana</small></div></article>
+      </section>
+
+      <div class="content-grid">
+        <section class="panel progress-panel"><div class="panel-heading"><div><span class="eyebrow">CONTINÚA APRENDIENDO</span><h2>Tu sesión de hoy</h2></div><a routerLink="/flashcards" class="text-link">Ver práctica <i class="uil uil-arrow-right"></i></a></div>@if (focusDocument(); as focus) {<div class="focus-card"><div class="focus-card-top"><div class="document-badge">{{ focus.type }}</div><div><strong>{{ focus.name }}</strong><span>{{ flashcards().length }} flashcards disponibles</span></div><span class="status-chip" [class.success]="focus.status === 'READY'" [class.warning]="focus.status === 'PROCESSING'">{{ statusLabel(focus.status) }}</span></div><div class="progress-label"><span>Estado del procesamiento</span><strong>{{ focus.progress }}%</strong></div><div class="progress-track"><span [style.width.%]="focus.progress"></span></div><a routerLink="/flashcards" class="secondary-button">Continuar práctica <i class="uil uil-arrow-right"></i></a></div>} @else {<div class="empty-state"><span><i class="uil uil-file-alt"></i></span><p>Carga un documento para comenzar.</p><a routerLink="/documents" class="secondary-button">Añadir documento</a></div>}</section>
+        <section class="panel activity-panel"><div class="panel-heading"><div><span class="eyebrow">ACTIVIDAD RECIENTE</span><h2>Tus documentos</h2></div><a routerLink="/documents" class="text-link">Ver todos <i class="uil uil-arrow-right"></i></a></div><div class="activity-list">@for (document of documents().slice(0, 3); track document.id) {<a class="activity-item" [routerLink]="['/documents', document.id]"><span class="file-icon">{{ document.type }}</span><span class="activity-copy"><strong>{{ document.name }}</strong><small>{{ document.uploadedAt }} | {{ document.size }}</small></span><span class="status-chip" [class.success]="document.status === 'READY'" [class.warning]="document.status === 'PROCESSING'" [class.error]="document.status === 'FAILED'">{{ statusLabel(document.status) }}</span></a>}</div></section>
+      </div>
+    </div>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class DashboardComponent implements OnInit {
+  private readonly auth = inject(AuthStore);
+  private readonly study = inject(StudyStore);
+  readonly documents = this.study.documents;
+  readonly flashcards = this.study.flashcards;
+  readonly displayName = computed(() => this.auth.user()?.email.split('@')[0] || 'estudiante');
+  readonly focusDocument = computed(() => this.documents().find((document) => document.status === 'READY') || this.documents()[0]);
+
+  ngOnInit(): void {
+    this.study.loadDocuments().subscribe({ next: (documents) => documents.filter((document) => document.status === 'READY').forEach((document) => this.study.loadArtifacts(document.id).subscribe()) });
+  }
+
+  statusLabel(status: string): string { return status === 'READY' ? 'Listo' : status === 'PROCESSING' ? 'Procesando' : status === 'FAILED' ? 'Revisar' : 'Recibido'; }
+}

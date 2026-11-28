@@ -48,7 +48,6 @@ import { AuthStore } from '../../core/auth.store';
 
           <div class="divider"><span>o</span></div>
           <button class="secondary-link login-signup full" type="button" (click)="toggleMode()">{{ isRegisterMode() ? 'Ya tengo una cuenta' : 'Crear una cuenta gratuita' }}</button>
-          <p class="demo-hint">Tu sesión se conecta al backend real de SmartStudyAI.</p>
         </div>
       </section>
 
